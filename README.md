@@ -1,3 +1,23 @@
+# 与原作者的区别
+
+我在原作者的基础上做了一些修改：
+1. 增加了创建用户的脚本，现在你可以直接使用 "adduser.strongswan.sh USERNAME" 的格式来添加，并且会自动生成一个给 iOS 和 Mac 用的 `.mobileconfig` 文件
+2. 限制每个帐户仅能同时在线 1 个终端，这是为了专号专用；同时配合第 `1` 条中脚本，方便又安全
+3. 增加了黑莓 Blackberry 10 的 IKEv2 配置
+4. 增加了 iOS/macOS 的 IKEv2/PSK 认证（无需用户名和密码）
+5. StrongSwan 永远使用最新版编译，你再也不用担心用是的旧 Bug 的版本了。
+6. 默认编译时，生成 systemd 启动脚本，现在你可以通过 `systemctl enable strongswan ` 和 `systemctl start strongswan`  来实现自启动控制
+7. 增加了一个脚本 , `update.certs.strongswan.sh Your_VPN_Domain`  。当然这个需要配全 Lets encrypt 相关脚本实现
+
+# 复制并更新证书
+
+我的 VPS 上是使用 Certbot 的 Docker 来实现证书的更新，别忘记添加到 crontab，要依照你的实际路径和域名，修改脚本和域名。
+
+```
+(crontab -l && echo "5 12 1 * * /usr/local/bin/update.certs.strongswan.sh my.vpnexample.org >/dev/null 2>&1") | crontab
+```
+
+
 # 一键搭建适用于Ubuntu/CentOS的IKEV2/L2TP的VPN
 
 ------
@@ -62,7 +82,11 @@
 客户端配置说明
 =====
 * 连接的服务器地址和证书保持一致,即取决于签发证书ca.cert.pem时使用的是ip还是域名;
- 
+
+* **blackberry 10** 新建 VPN，选一般 IKEv2 ；身份验证： EAP-MSCHAPv2 ；身份验证 ID 类型：你可以自由选择，比如使用 Email，然后填写 aabbcc@您的 VPN 域名；MSCHAPv2 标识：你随便写，比如  bb10 ；MSCHAPv2 用户名：你的用户名；密码：你的密码；网关身份验证类型: PSK ；网关身份验证 ID: IPv4 ；网关共享密钥：在你的ipsec.secrets 里的 PSK 值。
+
+* **iOS 和 Mac** 除了常规的方式外，这两个系统额外 支持仅通过 PSK 验证来上网，无需用户名和密码。对应的是配置文件的 PSK_Apple 。你可以通过 *Apple configure 2* 来创建 `.mobileconfig` 文件，也可以在手动创建，以 macOS 为例，新建一个 IKEv2 的 VPN，然后在“鉴定设置”里，直接选“无”，然后在共享密钥里输入你的 PSK 就可以了（PSK 就是你的 ipsec.secrets 里的那个）。
+
 * **Android/iOS/OSX** 可使用ikeV1,认证方式为用户名+密码+预共享密钥(PSK);
 
 * **iOS/OSX/Windows7+/WindowsPhone8.1+/Linux** 均可使用IkeV2,认证方式为用户名+密码。`使用SSL证书`则无需导入证书；`使用自签名证书`则需要先导入证书才能连接,可将ca.cert.pem更改后缀名作为邮件附件发送给客户端,手机端也可通过浏览器导入,其中:
