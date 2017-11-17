@@ -212,19 +212,21 @@ function pre_install(){
 
 # Download strongswan
 function download_files(){
-    strongswan_version='strongswan-5.5.1'
-    strongswan_file="$strongswan_version.tar.gz"
-    if [ -f $strongswan_file ];then
-        echo -e "$strongswan_file [$(__green "found")]"
-    else
-        if ! wget --no-check-certificate https://download.strongswan.org/$strongswan_file;then
-            echo "Failed to download $strongswan_file"
+    #strongswan_version='strongswan-5.5.1'
+    #strongswan_file="$strongswan_version.tar.gz"
+    #if [ -f $strongswan_file ];then
+    #    echo -e "$strongswan_file [$(__green "found")]"
+    #else
+        if ! wget --no-check-certificate https://download.strongswan.org/strongswan.tar.bz2;then
+            echo "Failed to download strongswan file"
             exit 1
         fi
-    fi
-    tar xzf $strongswan_file
+    #fi
+#    tar xzf $strongswan_file
+    mkdir -p ./strongswan
+    tar xjf strongswan.tar.bz2  --strip-components 1 -C ./strongswan/
     if [ $? -eq 0 ];then
-        cd $cur_dir/$strongswan_version/
+        cd $cur_dir/strongswan/
     else
         echo ""
         echo "Unzip $strongswan_file failed! Please visit https://quericy.me/blog/699 and contact."
@@ -236,17 +238,17 @@ function download_files(){
 function setup_strongswan(){
     if [ "$os" = "1" ]; then
         ./configure  --enable-eap-identity --enable-eap-md5 \
---enable-eap-mschapv2 --enable-eap-tls --enable-eap-ttls --enable-eap-peap  \
---enable-eap-tnc --enable-eap-dynamic --enable-eap-radius --enable-xauth-eap  \
---enable-xauth-pam  --enable-dhcp  --enable-openssl  --enable-addrblock --enable-unity  \
---enable-certexpire --enable-radattr --enable-swanctl --enable-openssl --disable-gmp
+        --enable-eap-mschapv2 --enable-eap-tls --enable-eap-ttls --enable-eap-peap  \
+        --enable-eap-tnc --enable-eap-dynamic --enable-eap-radius --enable-xauth-eap  \
+        --enable-xauth-pam  --enable-dhcp  --enable-openssl  --enable-addrblock --enable-unity  \
+        --enable-certexpire --enable-radattr  --enable-systemd --enable-swanctl --enable-openssl --disable-gmp
 
     else
         ./configure  --enable-eap-identity --enable-eap-md5 \
---enable-eap-mschapv2 --enable-eap-tls --enable-eap-ttls --enable-eap-peap  \
---enable-eap-tnc --enable-eap-dynamic --enable-eap-radius --enable-xauth-eap  \
---enable-xauth-pam  --enable-dhcp  --enable-openssl  --enable-addrblock --enable-unity  \
---enable-certexpire --enable-radattr --enable-swanctl --enable-openssl --disable-gmp --enable-kernel-libipsec
+        --enable-eap-mschapv2 --enable-eap-tls --enable-eap-ttls --enable-eap-peap  \
+        --enable-eap-tnc --enable-eap-dynamic --enable-eap-radius --enable-xauth-eap  \
+        --enable-xauth-pam  --enable-dhcp  --enable-openssl  --enable-addrblock --enable-unity  \
+        --enable-certexpire --enable-radattr --enable-systemd --enable-swanctl --enable-openssl --disable-gmp --enable-kernel-libipsec
 
     fi
     make; make install
@@ -372,11 +374,15 @@ conn networkmanager-strongswan
     rightsourceip=10.31.2.0/24
     rightcert=client.cert.pem
     auto=add
-
+conn Blackberry10
+    keyexchange=ikev2
+    leftauth=psk
+    leftid=${static_ip}
+    rightauth=eap-mschapv2
+    rightsendcert=never
+    eap_identity=bb10
 conn ios_ikev2
     keyexchange=ikev2
-    ike=aes256-sha256-modp2048,3des-sha1-modp2048,aes256-sha1-modp2048!
-    esp=aes256-sha256,3des-sha1,aes256-sha1!
     rekey=no
     left=%defaultroute
     leftid=${vps_ip}
