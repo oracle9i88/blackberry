@@ -2,12 +2,14 @@
 
 我在原作者的基础上做了一些修改：
 1. 增加了创建用户的脚本，现在你可以直接使用 "adduser.strongswan.sh USERNAME" 的格式来添加，并且会自动生成一个给 iOS 和 Mac 用的 `.mobileconfig` 文件
+2. iOS 和 Mac 通过 描述文件 实现了按需要自动连接以及从 WiFi 切换为 Celluar 时自动断线省电。
 2. 限制每个帐户仅能同时在线 1 个终端，这是为了专号专用；同时配合第 `1` 条中脚本，方便又安全
 3. 增加了黑莓 Blackberry 10 的 IKEv2 配置
 4. 增加了 iOS/macOS 的 IKEv2/PSK 认证（无需用户名和密码）
 5. StrongSwan 永远使用最新版编译，你再也不用担心用是的旧 Bug 的版本了。
 6. 默认编译时，生成 systemd 启动脚本，现在你可以通过 `systemctl enable strongswan ` 和 `systemctl start strongswan`  来实现自启动控制
 7. 增加了一个脚本 , `update.certs.strongswan.sh Your_VPN_Domain`  。当然这个需要配全 Lets encrypt 相关脚本实现
+9. **以上两个新增脚本纯为了方便，属于绝对不需要使用的** 以免你在脚本上折腾太久。
 
 # 复制并更新证书
 
