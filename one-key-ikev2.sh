@@ -362,7 +362,9 @@ conn android_xauth_psk
     rightauth2=xauth
     rightsourceip=10.31.2.0/24
     auto=add
-
+conn Xauth_Aggressive
+    also=android_xauth_psk
+    aggressive = yes
 conn networkmanager-strongswan
     keyexchange=ikev2
     left=%defaultroute
@@ -421,6 +423,7 @@ function configure_strongswan(){
  cat > /usr/local/etc/strongswan.conf<<-EOF
  charon {
         load_modular = yes
+        i_dont_care_about_security_and_use_aggressive_mode_psk=yes
         duplicheck.enable = no
         compress = yes
         plugins {
@@ -582,3 +585,4 @@ function success_info(){
 
 # Initialization step
 install_ikev2
+
