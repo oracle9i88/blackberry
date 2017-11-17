@@ -112,7 +112,7 @@ function yum_install(){
     yum -y install pam-devel openssl-devel make gcc curl
     else
     apt-get -y update
-    apt-get -y install libpam0g-dev libssl-dev make gcc curl
+    apt-get -y install libpam0g-dev libssl-dev make gcc curl bzip2
     fi
 }
 
